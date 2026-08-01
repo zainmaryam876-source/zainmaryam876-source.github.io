@@ -1453,30 +1453,11 @@
     >
       ⌘
     </button>
-
-    <button
-      class="floating-action"
-      type="button"
-      data-theme-toggle
-      aria-label="Toggle theme"
-      title="Toggle theme"
-    >
-      ☀
-    </button>
   `;
 
   document.body.appendChild(floating);
 
   qs("[data-command-open]", floating).addEventListener("click", openPalette);
 
-  qs("[data-theme-toggle]", floating).addEventListener("click", function () {
-    var next =
-      document.body.classList.contains("theme-light")
-        ? "dark"
-        : "light";
-
-    applyTheme(next);
-  });
-
-  applyTheme(preferredTheme());
+  applyTheme("dark");
 })();
