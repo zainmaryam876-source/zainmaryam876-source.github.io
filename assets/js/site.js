@@ -1,155 +1,77 @@
+document.querySelectorAll("[data-year]").forEach(function(el){el.textContent=new Date().getFullYear();});
 
-document.querySelectorAll("[data-year]").forEach((el) => {
-  el.textContent = new Date().getFullYear();
-});
-
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("is-visible");
-      revealObserver.unobserve(entry.target);
+// Highlight the current page in the nav
+(function highlightActiveNav(){
+  var current = location.pathname.split("/").pop() || "index.html";
+  document.querySelectorAll(".nav .links a").forEach(function(link){
+    var hrefFile = (link.getAttribute("href") || "").split("#")[0].split("/").pop();
+    if (hrefFile === current) {
+      link.setAttribute("aria-current", "page");
     }
   });
-}, { threshold: 0.1 });
+})();
 
-document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+// Fade the page in once loaded (avoids a flash of unstyled content)
+window.addEventListener("load", function(){
+  document.body.classList.add("loaded");
+});
+// Fallback in case 'load' already fired before this script ran
+if (document.readyState === "complete") {
+  document.body.classList.add("loaded");
 }
 
-function renderProjectCards() {
-  const grid = document.querySelector("[data-project-grid]");
-  if (!grid || !window.PORTFOLIO_PROJECTS) return;
+// Nav background intensifies once the page has scrolled
+(function navScrollState(){
+  var nav = document.querySelector(".nav");
+  if (!nav) return;
+  function update() {
+    if (window.scrollY > 8) {
+      nav.classList.add("scrolled");
+    } else {
+      nav.classList.remove("scrolled");
+    }
+  }
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+})();
 
-  grid.innerHTML = window.PORTFOLIO_PROJECTS.map((p) => `
-    <article class="project-card reveal" data-accent="${escapeHtml(p.accent)}">
-      <div class="project-meta">
-        <span>${escapeHtml(p.id)}</span>
-        <span>${escapeHtml(p.category)}</span>
-      </div>
-      <h3>${escapeHtml(p.title)}</h3>
-      <p>${escapeHtml(p.summary)}</p>
-      <a href="project.html?id=${encodeURIComponent(p.slug)}">View case study →</a>
-    </article>
-  `).join("");
+// Scroll-triggered reveal for cards and key content, with a gentle stagger.
+// Targets existing elements directly — no HTML changes required.
+(function scrollReveal(){
+  var targets = document.querySelectorAll(
+    ".card, .contact-item, .hero-grid > div, .hero-grid > .portrait-placeholder"
+  );
+  if (!targets.length) return;
 
-  grid.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
-}
+  if (!("IntersectionObserver" in window)) {
+    // Progressive enhancement: if unsupported, just show everything
+    targets.forEach(function(el){ el.classList.add("reveal", "in-view"); });
+    return;
+  }
 
-function renderProjectPage() {
-  const host = document.querySelector("[data-project-host]");
-  if (!host || !window.PORTFOLIO_PROJECTS) return;
+  targets.forEach(function(el){
+    el.classList.add("reveal");
+  });
 
-  const params = new URLSearchParams(window.location.search);
-  const slug = params.get("id");
-  const project = window.PORTFOLIO_PROJECTS.find((p) => p.slug === slug) || window.PORTFOLIO_PROJECTS[0];
+  // Stagger by position within their own parent container
+  var parents = new Set(Array.prototype.map.call(targets, function(el){ return el.parentElement; }));
+  parents.forEach(function(parent){
+    var siblings = Array.prototype.filter.call(parent.children, function(c){
+      return c.classList.contains("reveal");
+    });
+    siblings.forEach(function(el, i){
+      el.style.transitionDelay = Math.min(i * 70, 420) + "ms";
+    });
+  });
 
-  document.title = `${project.title} | Krishna Padmanabhan`;
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in-view");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
 
-  const atGlance = [
-    ["Domain", project.category],
-    ["Role", "Business analysis and product delivery"],
-    ["Project type", "Sanitized public case study"],
-    ["Delivery", "Enterprise workflow"]
-  ];
-
-  host.innerHTML = `
-    <header class="case-hero">
-      <div class="eyebrow">Public portfolio case study</div>
-      <h1>${escapeHtml(project.title)}</h1>
-      <p>${escapeHtml(project.summary)}</p>
-      <div class="chip-row">${project.tools.slice(0,6).map((t)=>`<span>${escapeHtml(t)}</span>`).join("")}</div>
-    </header>
-
-    <section class="case-layout reveal" data-accent="${escapeHtml(project.accent)}">
-      <div class="case-top">
-        <article class="case-title-panel">
-          <div class="section-label">Project case study · Public portfolio edition</div>
-          <h2>${escapeHtml(project.title)}</h2>
-          <p>${escapeHtml(project.summary)}</p>
-        </article>
-        <aside class="at-glance">
-          <div class="section-label">At a glance</div>
-          ${atGlance.map(([l,v])=>`<div class="glance-row"><span>${escapeHtml(l)}</span><strong>${escapeHtml(v)}</strong></div>`).join("")}
-        </aside>
-      </div>
-
-      <section class="case-block">
-        <div class="section-label">Solution workflow · End-to-end lifecycle</div>
-        <div class="workflow-grid">
-          ${project.workflow.map(([title,body],i)=>`
-            <article class="workflow-card">
-              <div class="step-number">${i+1}</div>
-              <h3>${escapeHtml(title)}</h3>
-              <p>${escapeHtml(body)}</p>
-            </article>`).join("")}
-        </div>
-      </section>
-
-      <section class="case-block">
-        <div class="section-label">Supporting components</div>
-        <div class="support-grid">
-          ${project.supporting.map(([title,body])=>`
-            <article class="support-card">
-              <h3>${escapeHtml(title)}</h3>
-              <p>${escapeHtml(body)}</p>
-            </article>`).join("")}
-        </div>
-      </section>
-
-      <div class="case-insights">
-        <div class="case-column">
-          <section class="case-panel">
-            <div class="section-label">Business challenge</div>
-            <h3>What needed to be solved</h3>
-            <p>${escapeHtml(project.challenge)}</p>
-          </section>
-          <section class="case-panel">
-            <div class="section-label">My contribution</div>
-            <h3>Where I added value</h3>
-            <p>${escapeHtml(project.role)}</p>
-          </section>
-        </div>
-        <div class="case-column">
-          <section class="case-panel">
-            <div class="section-label">Technology and methods</div>
-            <div class="tool-grid">${project.tools.map((t)=>`<span>${escapeHtml(t)}</span>`).join("")}</div>
-          </section>
-          <section class="case-panel">
-            <div class="section-label">Business outcome</div>
-            <h3>Result</h3>
-            <p>${escapeHtml(project.outcome)}</p>
-          </section>
-        </div>
-      </div>
-
-      <section class="case-block">
-        <div class="section-label">Skills demonstrated</div>
-        <div class="skills-row">${project.skills.map((s)=>`<span>${escapeHtml(s)}</span>`).join("")}</div>
-      </section>
-
-      <footer class="case-footer-panel">
-        <div>
-          <div class="section-label">Confidentiality</div>
-          <p>Employer names, product names, customer details, proprietary screenshots, and internal metrics are intentionally excluded.</p>
-        </div>
-        <a class="button" href="contact.html">Contact</a>
-      </footer>
-    </section>
-
-    <div class="case-actions">
-      <a class="button" href="index.html#projects">Back to projects</a>
-      <a class="button secondary" href="experience.html">View experience</a>
-    </div>
-  `;
-
-  host.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
-}
-
-renderProjectCards();
-renderProjectPage();
+  targets.forEach(function(el){ observer.observe(el); });
+})();
