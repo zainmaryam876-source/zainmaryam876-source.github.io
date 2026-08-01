@@ -1,77 +1,368 @@
-document.querySelectorAll("[data-year]").forEach(function(el){el.textContent=new Date().getFullYear();});
+document.querySelectorAll("[data-year]").forEach(function (el) {
+  el.textContent = new Date().getFullYear();
+});
 
-// Highlight the current page in the nav
-(function highlightActiveNav(){
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+/* =========================================================
+   ACTIVE NAVIGATION
+========================================================= */
+
+(function highlightActiveNav() {
   var current = location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll(".nav .links a").forEach(function(link){
-    var hrefFile = (link.getAttribute("href") || "").split("#")[0].split("/").pop();
+
+  document.querySelectorAll(".nav-links a, .nav .links a").forEach(function (link) {
+    var href = link.getAttribute("href") || "";
+    var hrefFile = href.split("#")[0].split("/").pop();
+
     if (hrefFile === current) {
       link.setAttribute("aria-current", "page");
     }
   });
 })();
 
-// Fade the page in once loaded (avoids a flash of unstyled content)
-window.addEventListener("load", function(){
+/* =========================================================
+   PAGE LOAD STATE
+========================================================= */
+
+window.addEventListener("load", function () {
   document.body.classList.add("loaded");
 });
-// Fallback in case 'load' already fired before this script ran
+
 if (document.readyState === "complete") {
   document.body.classList.add("loaded");
 }
 
-// Nav background intensifies once the page has scrolled
-(function navScrollState(){
-  var nav = document.querySelector(".nav");
-  if (!nav) return;
-  function update() {
-    if (window.scrollY > 8) {
-      nav.classList.add("scrolled");
-    } else {
-      nav.classList.remove("scrolled");
-    }
-  }
-  update();
-  window.addEventListener("scroll", update, { passive: true });
-})();
+/* =========================================================
+   NAVIGATION SCROLL STATE
+========================================================= */
 
-// Scroll-triggered reveal for cards and key content, with a gentle stagger.
-// Targets existing elements directly — no HTML changes required.
-(function scrollReveal(){
-  var targets = document.querySelectorAll(
-    ".card, .contact-item, .hero-grid > div, .hero-grid > .portrait-placeholder"
-  );
-  if (!targets.length) return;
+(function navScrollState() {
+  var nav = document.querySelector(".site-header, .nav");
 
-  if (!("IntersectionObserver" in window)) {
-    // Progressive enhancement: if unsupported, just show everything
-    targets.forEach(function(el){ el.classList.add("reveal", "in-view"); });
+  if (!nav) {
     return;
   }
 
-  targets.forEach(function(el){
+  function update() {
+    nav.classList.toggle("scrolled", window.scrollY > 8);
+  }
+
+  update();
+
+  window.addEventListener("scroll", update, {
+    passive: true
+  });
+})();
+
+/* =========================================================
+   PROJECT CARDS
+========================================================= */
+
+function renderProjectCards() {
+  var grid = document.querySelector("[data-project-grid]");
+
+  if (!grid || !window.PORTFOLIO_PROJECTS) {
+    return;
+  }
+
+  grid.innerHTML = window.PORTFOLIO_PROJECTS
+    .map(function (project) {
+      return `
+        <article
+          class="project-card reveal"
+          data-accent="${escapeHtml(project.accent)}"
+        >
+          <div class="project-meta">
+            <span>${escapeHtml(project.id)}</span>
+            <span>${escapeHtml(project.category)}</span>
+          </div>
+
+          <h3>${escapeHtml(project.title)}</h3>
+
+          <p>${escapeHtml(project.summary)}</p>
+
+          <a href="project.html?id=${encodeURIComponent(project.slug)}">
+            View case study →
+          </a>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+/* =========================================================
+   CASE STUDY PAGE
+========================================================= */
+
+function renderProjectPage() {
+  var host = document.querySelector("[data-project-host]");
+
+  if (!host || !window.PORTFOLIO_PROJECTS) {
+    return;
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get("id");
+
+  var project =
+    window.PORTFOLIO_PROJECTS.find(function (item) {
+      return item.slug === slug;
+    }) || window.PORTFOLIO_PROJECTS[0];
+
+  document.title = project.title + " | Krishna Padmanabhan";
+
+  var atGlance = [
+    ["Domain", project.category],
+    ["Role", "Business analysis and product delivery"],
+    ["Project type", "Sanitized public case study"],
+    ["Delivery", "Enterprise workflow"]
+  ];
+
+  host.innerHTML = `
+    <header class="case-hero">
+      <div class="eyebrow">Public portfolio case study</div>
+
+      <h1>${escapeHtml(project.title)}</h1>
+
+      <p>${escapeHtml(project.summary)}</p>
+
+      <div class="chip-row">
+        ${project.tools
+          .slice(0, 6)
+          .map(function (tool) {
+            return `<span>${escapeHtml(tool)}</span>`;
+          })
+          .join("")}
+      </div>
+    </header>
+
+    <section
+      class="case-layout reveal"
+      data-accent="${escapeHtml(project.accent)}"
+    >
+      <div class="case-top">
+
+        <article class="case-title-panel">
+          <div class="section-label">
+            Project case study · Public portfolio edition
+          </div>
+
+          <h2>${escapeHtml(project.title)}</h2>
+
+          <p>${escapeHtml(project.summary)}</p>
+        </article>
+
+        <aside class="at-glance">
+          <div class="section-label">At a glance</div>
+
+          ${atGlance
+            .map(function (item) {
+              return `
+                <div class="glance-row">
+                  <span>${escapeHtml(item[0])}</span>
+                  <strong>${escapeHtml(item[1])}</strong>
+                </div>
+              `;
+            })
+            .join("")}
+        </aside>
+
+      </div>
+
+      <section class="case-block">
+        <div class="section-label">
+          Solution workflow · End-to-end lifecycle
+        </div>
+
+        <div class="workflow-grid">
+          ${project.workflow
+            .map(function (step, index) {
+              return `
+                <article class="workflow-card">
+                  <div class="step-number">${index + 1}</div>
+
+                  <h3>${escapeHtml(step[0])}</h3>
+
+                  <p>${escapeHtml(step[1])}</p>
+                </article>
+              `;
+            })
+            .join("")}
+        </div>
+      </section>
+
+      <section class="case-block">
+        <div class="section-label">Supporting components</div>
+
+        <div class="support-grid">
+          ${project.supporting
+            .map(function (item) {
+              return `
+                <article class="support-card">
+                  <h3>${escapeHtml(item[0])}</h3>
+                  <p>${escapeHtml(item[1])}</p>
+                </article>
+              `;
+            })
+            .join("")}
+        </div>
+      </section>
+
+      <div class="case-insights">
+
+        <div class="case-column">
+
+          <section class="case-panel">
+            <div class="section-label">Business challenge</div>
+
+            <h3>What needed to be solved</h3>
+
+            <p>${escapeHtml(project.challenge)}</p>
+          </section>
+
+          <section class="case-panel">
+            <div class="section-label">My contribution</div>
+
+            <h3>Where I added value</h3>
+
+            <p>${escapeHtml(project.role)}</p>
+          </section>
+
+        </div>
+
+        <div class="case-column">
+
+          <section class="case-panel">
+            <div class="section-label">Technology and methods</div>
+
+            <div class="tool-grid">
+              ${project.tools
+                .map(function (tool) {
+                  return `<span>${escapeHtml(tool)}</span>`;
+                })
+                .join("")}
+            </div>
+          </section>
+
+          <section class="case-panel">
+            <div class="section-label">Business outcome</div>
+
+            <h3>Result</h3>
+
+            <p>${escapeHtml(project.outcome)}</p>
+          </section>
+
+        </div>
+
+      </div>
+
+      <section class="case-block">
+        <div class="section-label">Skills demonstrated</div>
+
+        <div class="skills-row">
+          ${project.skills
+            .map(function (skill) {
+              return `<span>${escapeHtml(skill)}</span>`;
+            })
+            .join("")}
+        </div>
+      </section>
+
+      <footer class="case-footer-panel">
+
+        <div>
+          <div class="section-label">Confidentiality</div>
+
+          <p>
+            Employer names, product names, customer details,
+            proprietary screenshots, and internal metrics are
+            intentionally excluded.
+          </p>
+        </div>
+
+        <a class="button" href="contact.html">
+          Contact
+        </a>
+
+      </footer>
+
+    </section>
+
+    <div class="case-actions">
+      <a class="button" href="index.html#projects">
+        Back to projects
+      </a>
+
+      <a class="button secondary" href="experience.html">
+        View experience
+      </a>
+    </div>
+  `;
+}
+
+/* =========================================================
+   RENDER DYNAMIC CONTENT FIRST
+========================================================= */
+
+renderProjectCards();
+renderProjectPage();
+
+/* =========================================================
+   SCROLL REVEAL
+========================================================= */
+
+(function scrollReveal() {
+  var targets = document.querySelectorAll(
+    ".reveal, .project-card, .contact-row, .timeline-card, .content-card"
+  );
+
+  if (!targets.length) {
+    return;
+  }
+
+  if (!("IntersectionObserver" in window)) {
+    targets.forEach(function (el) {
+      el.classList.add("reveal", "is-visible");
+    });
+
+    return;
+  }
+
+  targets.forEach(function (el) {
     el.classList.add("reveal");
   });
 
-  // Stagger by position within their own parent container
-  var parents = new Set(Array.prototype.map.call(targets, function(el){ return el.parentElement; }));
-  parents.forEach(function(parent){
-    var siblings = Array.prototype.filter.call(parent.children, function(c){
-      return c.classList.contains("reveal");
-    });
-    siblings.forEach(function(el, i){
-      el.style.transitionDelay = Math.min(i * 70, 420) + "ms";
-    });
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.12,
+      rootMargin: "0px 0px -40px 0px"
+    }
+  );
+
+  targets.forEach(function (el, index) {
+    el.style.transitionDelay =
+      Math.min(index * 45, 250) + "ms";
+
+    observer.observe(el);
   });
-
-  var observer = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if (entry.isIntersecting) {
-        entry.target.classList.add("in-view");
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
-
-  targets.forEach(function(el){ observer.observe(el); });
 })();
