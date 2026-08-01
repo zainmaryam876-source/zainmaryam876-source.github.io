@@ -504,4 +504,214 @@
   }
 
   setupWorkflowFocus();
+
+  function finePointer() {
+    return window.matchMedia &&
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  }
+
+  function reducedMotion() {
+    return window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  /* =======================================================
+     ANIMATED METRIC COUNTERS
+  ======================================================= */
+
+  function setupCounters() {
+    var nodes = qsa(".metrics strong");
+
+    if (!nodes.length || reducedMotion()) return;
+
+    var pattern = /^(\d[\d,]*)(.*)$/;
+
+    nodes.forEach(function (node) {
+      var match = pattern.exec(node.textContent.trim());
+
+      if (!match) return;
+
+      var target = parseInt(match[1].replace(/,/g, ""), 10);
+      var suffix = match[2];
+
+      if (!Number.isFinite(target)) return;
+
+      node.textContent = "0" + suffix;
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+
+          observer.disconnect();
+
+          var start = null;
+          var duration = 900;
+
+          function step(timestamp) {
+            if (start === null) start = timestamp;
+
+            var progress = Math.min(1, (timestamp - start) / duration);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var value = Math.round(target * eased);
+
+            node.textContent = value.toLocaleString() + suffix;
+
+            if (progress < 1) window.requestAnimationFrame(step);
+          }
+
+          window.requestAnimationFrame(step);
+        });
+      }, { threshold: 0.4 });
+
+      observer.observe(node);
+    });
+  }
+
+  setupCounters();
+
+  /* =======================================================
+     CURSOR-REACTIVE GLOW
+  ======================================================= */
+
+  function setupGlowSurfaces() {
+    if (!finePointer() || reducedMotion()) return;
+
+    qsa(".hero-panel, .info-title").forEach(function (surface) {
+      surface.addEventListener("mousemove", function (event) {
+        var bounds = surface.getBoundingClientRect();
+
+        surface.style.setProperty(
+          "--glow-x",
+          ((event.clientX - bounds.left) / bounds.width) * 100 + "%"
+        );
+
+        surface.style.setProperty(
+          "--glow-y",
+          ((event.clientY - bounds.top) / bounds.height) * 100 + "%"
+        );
+
+        surface.classList.add("is-glowing");
+      });
+
+      surface.addEventListener("mouseleave", function () {
+        surface.classList.remove("is-glowing");
+      });
+    });
+  }
+
+  setupGlowSurfaces();
+
+  /* =======================================================
+     MAGNETIC BUTTONS
+  ======================================================= */
+
+  function setupMagneticButtons() {
+    if (!finePointer() || reducedMotion()) return;
+
+    qsa(".button").forEach(function (button) {
+      button.addEventListener("mousemove", function (event) {
+        var bounds = button.getBoundingClientRect();
+        var dx = (event.clientX - bounds.left - bounds.width / 2) * 0.28;
+        var dy = (event.clientY - bounds.top - bounds.height / 2) * 0.34;
+
+        button.style.transform =
+          "translate(" + dx.toFixed(1) + "px, " + dy.toFixed(1) + "px)";
+      });
+
+      button.addEventListener("mouseleave", function () {
+        button.style.transform = "";
+      });
+    });
+  }
+
+  setupMagneticButtons();
+
+  /* =======================================================
+     COPY TO CLIPBOARD
+  ======================================================= */
+
+  function setupCopyContact() {
+    var rows = qsa(".contact-row").filter(function (row) {
+      return row.tagName !== "A" && row.querySelector("span");
+    });
+
+    if (!rows.length) return;
+
+    var toast = document.createElement("div");
+    toast.className = "copy-toast";
+    toast.setAttribute("role", "status");
+    document.body.appendChild(toast);
+
+    var toastTimer = null;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("is-visible");
+
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(function () {
+        toast.classList.remove("is-visible");
+      }, 1800);
+    }
+
+    function legacyCopy(text) {
+      var scratch = document.createElement("textarea");
+      scratch.value = text;
+      scratch.setAttribute("readonly", "");
+      scratch.style.position = "fixed";
+      scratch.style.opacity = "0";
+      document.body.appendChild(scratch);
+      scratch.select();
+
+      var copied = false;
+
+      try {
+        copied = document.execCommand("copy");
+      } catch (error) {
+        copied = false;
+      }
+
+      document.body.removeChild(scratch);
+      return copied;
+    }
+
+    rows.forEach(function (row) {
+      var value = row.querySelector("span");
+
+      row.classList.add("is-copyable");
+      row.setAttribute("tabindex", "0");
+      row.setAttribute("role", "button");
+      row.setAttribute("aria-label", "Copy " + value.textContent.trim());
+
+      function copy() {
+        var text = value.textContent.trim();
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            function () {
+              showToast("Copied: " + text);
+            },
+            function () {
+              showToast(legacyCopy(text) ? "Copied: " + text : text);
+            }
+          );
+
+          return;
+        }
+
+        showToast(legacyCopy(text) ? "Copied: " + text : text);
+      }
+
+      row.addEventListener("click", copy);
+
+      row.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          copy();
+        }
+      });
+    });
+  }
+
+  setupCopyContact();
 })();
