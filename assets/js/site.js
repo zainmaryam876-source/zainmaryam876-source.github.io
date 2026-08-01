@@ -1,9 +1,3 @@
-/* =========================================================
-   KRISHNA PORTFOLIO — DARK PREMIUM UI/UX ENGINE
-   Replace: assets/js/site.js
-   Requires: assets/js/projects-data.js
-========================================================= */
-
 (function () {
   "use strict";
 
@@ -28,1388 +22,486 @@
     return String(value || "").trim().toLowerCase();
   }
 
-  function finePointer() {
-    return window.matchMedia &&
-      window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  }
+  function iconSvg(name) {
+    var icons = {
+      requirements: '<path d="M4 5h16v11H8l-4 4V5Z"/><path d="M8 9h8M8 13h5"/>',
+      products: '<path d="m12 2 8 4.5v9L12 20l-8-4.5v-9L12 2Z"/><path d="m4.5 6.5 7.5 4 7.5-4M12 10.5V20"/>',
+      logic: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h.01M11 8h.01M15 8h.01M7 13h4M14 12l3 3-3 3"/>',
+      validation: '<path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5l-8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/>',
+      compatibility: '<path d="M8 3v4H4v4H1v5h5v4h5v-3h4v3h5v-5h3v-5h-5V6h-5V3H8Z"/><path d="M8 7h5v4h5v4h-7v3"/>',
+      approval: '<circle cx="9" cy="8" r="4"/><path d="M2 21c.6-4.1 3-6 7-6 2.2 0 4 .6 5.2 1.8"/><circle cx="18" cy="18" r="4"/><path d="m16.5 18 1 1 2-2"/>',
+      output: '<path d="M6 2h9l5 5v15H6V2Z"/><path d="M14 2v6h6M9 13h7M9 17h5"/>',
+      database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+      sliders: '<path d="M4 6h8M16 6h4M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="14" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+      chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+      workflow: '<rect x="3" y="3" width="6" height="5" rx="1"/><rect x="15" y="3" width="6" height="5" rx="1"/><rect x="9" y="16" width="6" height="5" rx="1"/><path d="M6 8v4h12V8M12 12v4"/>',
+      document: '<path d="M6 2h9l5 5v15H6V2Z"/><path d="M14 2v6h6M9 12h7M9 16h7"/>',
+      shield: '<path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5l-8-3Z"/><path d="M12 8v8M8 12h8"/>',
+      transform: '<path d="M4 7h11l-3-3M20 17H9l3 3M15 4l3 3-3 3M9 14l-3 3 3 3"/>',
+      api: '<path d="M8 9 4 12l4 3M16 9l4 3-4 3M14 5l-4 14"/>'
+    };
 
-  function reducedMotion() {
-    return window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+      (icons[name] || icons.document) +
+      '</svg>';
   }
 
   qsa("[data-year]").forEach(function (element) {
     element.textContent = new Date().getFullYear();
   });
 
-  /* =======================================================
-     STYLES FOR NEW FUNCTIONALITY
-  ======================================================= */
-
-  var style = document.createElement("style");
-
-  style.textContent = `
-    :root {
-      --page-progress: 0%;
-    }
-
-    .page-progress {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 9999;
-      width: var(--page-progress);
-      height: 3px;
-      pointer-events: none;
-      background: linear-gradient(90deg, var(--accent, #35d4f1), #7c8cff, #ba79ff);
-      box-shadow: 0 0 16px rgba(53, 212, 241, .45);
-    }
-
-    .project-filter {
-      margin: 0 0 26px;
-      padding: 14px;
-      border: 1px solid var(--line, #243b59);
-      border-radius: 16px;
-      background: rgba(10, 23, 40, .74);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 14px 34px rgba(0, 0, 0, .18);
-    }
-
-    .project-filter-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .project-search {
-      flex: 1 1 280px;
-      min-height: 42px;
-      padding: 10px 13px;
-      border: 1px solid var(--line, #243b59);
-      border-radius: 11px;
-      background: rgba(11, 24, 42, .92);
-      color: var(--text, #f4f7fb);
-      outline: none;
-    }
-
-    .project-search:focus {
-      border-color: var(--accent, #35d4f1);
-      box-shadow: 0 0 0 4px rgba(53, 212, 241, .09);
-    }
-
-    .filter-pill {
-      min-height: 40px;
-      padding: 9px 13px;
-      border: 1px solid var(--line, #243b59);
-      border-radius: 999px;
-      background: rgba(11, 24, 42, .92);
-      color: var(--muted, #9eafc3);
-      cursor: pointer;
-      font-size: .79rem;
-      font-weight: 750;
-      transition:
-        transform .2s ease,
-        border-color .2s ease,
-        color .2s ease,
-        background .2s ease;
-    }
-
-    .filter-pill:hover {
-      transform: translateY(-2px);
-      color: var(--text, #f4f7fb);
-      border-color: var(--line-2, #365779);
-    }
-
-    .filter-pill.is-active {
-      color: #041019;
-      border-color: var(--accent, #35d4f1);
-      background: var(--accent, #35d4f1);
-      box-shadow: 0 10px 24px rgba(53, 212, 241, .16);
-    }
-
-    .project-card[hidden] {
-      display: none !important;
-    }
-
-    .project-empty {
-      grid-column: 1 / -1;
-      padding: 28px;
-      border: 1px dashed var(--line, #243b59);
-      border-radius: 16px;
-      color: var(--muted, #9eafc3);
-      text-align: center;
-    }
-
-    /* Mini infographic inside every project tile */
-    .project-mini-graphic {
-      position: relative;
-      margin: 22px 0 2px;
-      padding: 16px;
-      overflow: hidden;
-      border: 1px solid color-mix(
-        in srgb,
-        var(--project-card-accent, #35d4f1) 26%,
-        var(--line, #243b59)
-      );
-      border-radius: 14px;
-      background:
-        radial-gradient(
-          circle at 85% 12%,
-          color-mix(in srgb, var(--project-card-accent, #35d4f1) 12%, transparent),
-          transparent 32%
-        ),
-        rgba(7, 17, 31, .74);
-    }
-
-    .project-mini-graphic::before {
-      content: "";
-      position: absolute;
-      top: 34px;
-      left: 27px;
-      right: 27px;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        color-mix(in srgb, var(--project-card-accent, #35d4f1) 70%, transparent),
-        transparent
-      );
-      opacity: .8;
-    }
-
-    .mini-flow {
-      position: relative;
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .mini-step {
-      min-width: 0;
-      text-align: center;
-    }
-
-    .mini-dot {
-      position: relative;
-      z-index: 1;
-      width: 25px;
-      height: 25px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-      border: 1px solid color-mix(
-        in srgb,
-        var(--project-card-accent, #35d4f1) 72%,
-        white 8%
-      );
-      border-radius: 50%;
-      background: #081321;
-      color: var(--project-card-accent, #35d4f1);
-      font-size: .68rem;
-      font-weight: 850;
-      box-shadow:
-        0 0 0 4px rgba(7, 17, 31, .8),
-        0 0 18px color-mix(
-          in srgb,
-          var(--project-card-accent, #35d4f1) 16%,
-          transparent
-        );
-    }
-
-    .mini-step strong {
-      display: block;
-      overflow: hidden;
-      color: var(--text-soft, #d8e2ee);
-      font-size: .69rem;
-      line-height: 1.25;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .mini-step span {
-      display: block;
-      margin-top: 3px;
-      color: var(--muted, #9eafc3);
-      font-size: .61rem;
-      line-height: 1.25;
-    }
-
-    .mini-tech-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 14px;
-    }
-
-    .mini-tech-row span {
-      padding: 4px 7px;
-      border: 1px solid var(--line, #243b59);
-      border-radius: 999px;
-      color: var(--muted, #9eafc3);
-      font-size: .62rem;
-      font-weight: 700;
-    }
-
-    /* Premium pointer-following depth */
-    .project-card {
-      --pointer-x: 50%;
-      --pointer-y: 50%;
-      --tilt-x: 0deg;
-      --tilt-y: 0deg;
-      --lift: 0px;
-
-      transform:
-        perspective(1200px)
-        rotateX(var(--tilt-x))
-        rotateY(var(--tilt-y))
-        translateY(var(--lift));
-
-      transform-style: preserve-3d;
-      will-change: transform;
-      transition:
-        transform 260ms cubic-bezier(.22, 1, .36, 1),
-        border-color 220ms ease,
-        box-shadow 260ms ease;
-    }
-
-    .project-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      border-radius: inherit;
-      opacity: 0;
-      background:
-        radial-gradient(
-          380px circle at var(--pointer-x) var(--pointer-y),
-          color-mix(
-            in srgb,
-            var(--project-card-accent, #35d4f1) 18%,
-            transparent
-          ),
-          transparent 64%
-        );
-      transition: opacity 220ms ease;
-    }
-
-    .project-card > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .project-card.is-interactive {
-      --lift: -7px;
-      border-color: color-mix(
-        in srgb,
-        var(--project-card-accent, #35d4f1) 70%,
-        var(--line, #243b59)
-      );
-      box-shadow:
-        0 30px 72px rgba(0, 0, 0, .38),
-        0 0 0 1px color-mix(
-          in srgb,
-          var(--project-card-accent, #35d4f1) 16%,
-          transparent
-        );
-    }
-
-    .project-card.is-interactive::after {
-      opacity: 1;
-    }
-
-    .project-card .project-meta,
-    .project-card h3,
-    .project-card p,
-    .project-card .project-mini-graphic,
-    .project-card > a {
-      transform: translateZ(0);
-      transition: transform 260ms cubic-bezier(.22, 1, .36, 1);
-    }
-
-    .project-card.is-interactive h3 {
-      transform: translateZ(18px);
-    }
-
-    .project-card.is-interactive .project-mini-graphic {
-      transform: translateZ(14px);
-    }
-
-    .project-card.is-interactive .project-meta,
-    .project-card.is-interactive p {
-      transform: translateZ(9px);
-    }
-
-    .project-card.is-interactive > a {
-      transform: translateZ(16px) translateX(4px);
-    }
-
-    .case-subnav {
-      position: sticky;
-      top: 68px;
-      z-index: 75;
-      margin: 0 0 18px;
-      border-top: 1px solid rgba(36, 59, 89, .7);
-      border-bottom: 1px solid rgba(36, 59, 89, .7);
-      background: rgba(7, 17, 31, .9);
-      backdrop-filter: blur(14px);
-    }
-
-    .case-subnav-inner {
-      min-height: 48px;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .case-subnav-inner::-webkit-scrollbar {
-      display: none;
-    }
-
-    .case-subnav a {
-      white-space: nowrap;
-      color: var(--muted, #9eafc3);
-      font-size: .8rem;
-      font-weight: 750;
-    }
-
-    .case-subnav a:hover,
-    .case-subnav a.is-active {
-      color: var(--project-accent, var(--accent, #35d4f1));
-    }
-
-    .workflow-card {
-      cursor: pointer;
-      position: relative;
-    }
-
-    .workflow-grid.has-focus .workflow-card:not(.is-focused) {
-      opacity: .34;
-      transform: scale(.98);
-      filter: saturate(.65);
-    }
-
-    .workflow-card.is-focused {
-      border-color: var(--project-accent, var(--accent, #35d4f1));
-      box-shadow:
-        0 18px 42px rgba(0, 0, 0, .28),
-        0 0 0 1px color-mix(
-          in srgb,
-          var(--project-accent, #35d4f1) 45%,
-          transparent
-        );
-    }
-
-    .stage-detail {
-      display: grid;
-      grid-template-rows: 0fr;
-      margin-top: 0;
-      opacity: 0;
-      transition:
-        grid-template-rows 220ms ease,
-        opacity 220ms ease,
-        margin-top 220ms ease;
-    }
-
-    .stage-detail > div {
-      overflow: hidden;
-      padding: 0 12px;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      background: rgba(7, 17, 31, .92);
-      color: var(--muted, #9eafc3);
-      font-size: .78rem;
-      line-height: 1.55;
-    }
-
-    .workflow-card.is-focused .stage-detail {
-      grid-template-rows: 1fr;
-      margin-top: 12px;
-      opacity: 1;
-    }
-
-    .workflow-card.is-focused .stage-detail > div {
-      padding: 12px;
-      border-color: var(--line, #243b59);
-    }
-
-    .floating-command {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index: 150;
-      width: 46px;
-      height: 46px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(54, 87, 121, .9);
-      border-radius: 14px;
-      background: rgba(7, 17, 31, .82);
-      color: #eef5ff;
-      cursor: pointer;
-      box-shadow:
-        0 18px 42px rgba(0, 0, 0, .34),
-        inset 0 1px 0 rgba(255, 255, 255, .05);
-      backdrop-filter: blur(16px);
-    }
-
-    .floating-command:hover {
-      border-color: var(--accent, #35d4f1);
-      transform: translateY(-3px);
-    }
-
-    .command-palette {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      display: none;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 10vh 18px 18px;
-    }
-
-    .command-palette.is-open {
-      display: flex;
-    }
-
-    .command-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(2, 8, 16, .8);
-      backdrop-filter: blur(12px);
-    }
-
-    .command-dialog {
-      position: relative;
-      z-index: 1;
-      width: min(680px, 100%);
-      overflow: hidden;
-      border: 1px solid rgba(54, 87, 121, .94);
-      border-radius: 18px;
-      background: #07111f;
-      box-shadow: 0 34px 100px rgba(0, 0, 0, .58);
-    }
-
-    .command-input {
-      width: 100%;
-      padding: 18px 20px;
-      border: 0;
-      border-bottom: 1px solid var(--line, #243b59);
-      background: transparent;
-      color: var(--text, #f4f7fb);
-      outline: none;
-      font-size: 1rem;
-    }
-
-    .command-results {
-      max-height: 58vh;
-      overflow: auto;
-      padding: 10px;
-    }
-
-    .command-item {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 18px;
-      padding: 13px 14px;
-      border: 0;
-      border-radius: 11px;
-      background: transparent;
-      color: var(--text, #f4f7fb);
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .command-item:hover,
-    .command-item.is-selected {
-      background: rgba(53, 212, 241, .1);
-    }
-
-    .command-item small {
-      color: var(--muted, #9eafc3);
-    }
-
-    @media (max-width: 760px) {
-      .mini-flow {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .project-mini-graphic::before {
-        display: none;
-      }
-
-      .case-subnav {
-        top: 116px;
-      }
-
-      .floating-command {
-        right: 12px;
-        bottom: 12px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .page-progress {
-        display: none;
-      }
-
-      .project-card,
-      .project-card * {
-        transform: none !important;
-      }
-    }
-  `;
-
-  document.head.appendChild(style);
-
-  /* =======================================================
-     NAV + PROGRESS
-  ======================================================= */
-
-  (function activeNav() {
-    var current =
-      window.location.pathname.split("/").pop() || "index.html";
-
-    qsa(".nav-links a, .links a").forEach(function (link) {
-      var page =
-        (link.getAttribute("href") || "")
-          .split("#")[0]
-          .split("/")
-          .pop();
-
-      if (page === current) {
-        link.setAttribute("aria-current", "page");
-      }
-    });
-  })();
-
-  (function navScroll() {
-    var header = qs(".site-header, .nav");
-
-    if (!header) {
-      return;
-    }
-
-    function update() {
-      header.classList.toggle("scrolled", window.scrollY > 8);
-    }
-
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-  })();
-
-  var progress = document.createElement("div");
-  progress.className = "page-progress";
-  document.body.appendChild(progress);
-
-  function updateProgress() {
-    var max =
-      document.documentElement.scrollHeight - window.innerHeight;
-
-    var value =
-      max > 0
-        ? Math.min(100, Math.max(0, (window.scrollY / max) * 100))
-        : 0;
-
-    document.documentElement.style.setProperty(
-      "--page-progress",
-      value + "%"
-    );
-  }
-
-  updateProgress();
-  window.addEventListener("scroll", updateProgress, { passive: true });
-  window.addEventListener("resize", updateProgress);
-
-  /* =======================================================
-     PROJECT TILE INFOGRAPHICS
-  ======================================================= */
-
-  function previewSteps(project) {
-    var workflow = project.workflow || [];
-
-    if (workflow.length <= 4) {
-      return workflow;
-    }
-
-    return [
-      workflow[0],
-      workflow[Math.floor((workflow.length - 1) / 3)],
-      workflow[Math.floor(((workflow.length - 1) * 2) / 3)],
-      workflow[workflow.length - 1]
-    ];
+  function setProjectVariables(element, accent) {
+    var colors = {
+      cyan: "#35d4f1",
+      blue: "#59aaff",
+      violet: "#9f7cff",
+      green: "#3ad8aa",
+      orange: "#f2b45c",
+      magenta: "#eb6aca"
+    };
+
+    element.style.setProperty("--project", colors[accent] || colors.cyan);
   }
 
   function renderProjectCards() {
     var grid = qs("[data-project-grid]");
 
-    if (!grid || !window.PORTFOLIO_PROJECTS) {
-      return;
-    }
+    if (!grid || !window.PORTFOLIO_PROJECTS) return;
 
-    grid.innerHTML = window.PORTFOLIO_PROJECTS
-      .map(function (project) {
-        var steps = previewSteps(project);
+    grid.innerHTML = window.PORTFOLIO_PROJECTS.map(function (project) {
+      var previewIndexes = [0, 2, 4, 6];
+      var preview = previewIndexes.map(function (index) {
+        return project.workflow[index];
+      });
 
-        var searchable =
-          project.title +
-          " " +
-          project.category +
-          " " +
-          project.summary +
-          " " +
-          project.tools.join(" ") +
-          " " +
-          project.skills.join(" ");
+      var searchable = [
+        project.title,
+        project.category,
+        project.summary,
+        project.tools.join(" "),
+        project.skills.join(" ")
+      ].join(" ");
 
-        return `
-          <article
-            class="project-card reveal"
-            data-accent="${escapeHtml(project.accent)}"
-            data-category="${escapeHtml(project.category)}"
-            data-search="${escapeHtml(searchable)}"
-          >
-            <div class="project-meta">
-              <span>${escapeHtml(project.id)}</span>
-              <span>${escapeHtml(project.category)}</span>
+      return `
+        <article
+          class="project-card reveal"
+          data-accent="${escapeHtml(project.accent)}"
+          data-category="${escapeHtml(project.category)}"
+          data-search="${escapeHtml(searchable)}"
+        >
+          <div class="project-meta">
+            <span>${escapeHtml(project.id)}</span>
+            <span>${escapeHtml(project.category)}</span>
+          </div>
+
+          <h3>${escapeHtml(project.title)}</h3>
+          <p>${escapeHtml(project.summary)}</p>
+
+          <div class="project-preview" aria-label="Workflow preview">
+            <div class="preview-flow">
+              ${preview.map(function (stage, index) {
+                return `
+                  <div class="preview-stage">
+                    <span class="preview-icon">${iconSvg(stage.icon)}</span>
+                    <strong>${escapeHtml(stage.title)}</strong>
+                  </div>
+                `;
+              }).join("")}
             </div>
 
-            <h3>${escapeHtml(project.title)}</h3>
-
-            <p>${escapeHtml(project.summary)}</p>
-
-            <div
-              class="project-mini-graphic"
-              aria-label="${escapeHtml(project.title)} workflow preview"
-            >
-              <div class="mini-flow">
-                ${steps
-                  .map(function (step, index) {
-                    return `
-                      <div class="mini-step">
-                        <span class="mini-dot">${index + 1}</span>
-                        <strong>${escapeHtml(step[0])}</strong>
-                        <span>${escapeHtml(step[1])}</span>
-                      </div>
-                    `;
-                  })
-                  .join("")}
-              </div>
-
-              <div class="mini-tech-row">
-                ${project.tools
-                  .slice(0, 4)
-                  .map(function (tool) {
-                    return `<span>${escapeHtml(tool)}</span>`;
-                  })
-                  .join("")}
-              </div>
+            <div class="preview-tools">
+              ${project.tools.slice(0, 4).map(function (tool) {
+                return `<span>${escapeHtml(tool)}</span>`;
+              }).join("")}
             </div>
+          </div>
 
-            <a href="project.html?id=${encodeURIComponent(project.slug)}">
-              Explore case study →
-            </a>
-          </article>
-        `;
-      })
-      .join("");
+          <a href="project.html?id=${encodeURIComponent(project.slug)}">
+            Explore case study →
+          </a>
+        </article>
+      `;
+    }).join("");
+
+    qsa(".project-card", grid).forEach(function (card) {
+      setProjectVariables(card, card.getAttribute("data-accent"));
+    });
   }
-
-  /* =======================================================
-     FULL PROJECT INFOGRAPHIC
-  ======================================================= */
 
   function renderProjectPage() {
     var host = qs("[data-project-host]");
 
-    if (!host || !window.PORTFOLIO_PROJECTS) {
-      return;
-    }
+    if (!host || !window.PORTFOLIO_PROJECTS) return;
 
-    var params = new URLSearchParams(window.location.search);
-    var slug = params.get("id");
-
-    var project =
-      window.PORTFOLIO_PROJECTS.find(function (item) {
-        return item.slug === slug;
-      }) || window.PORTFOLIO_PROJECTS[0];
+    var slug = new URLSearchParams(window.location.search).get("id");
+    var project = window.PORTFOLIO_PROJECTS.find(function (item) {
+      return item.slug === slug;
+    }) || window.PORTFOLIO_PROJECTS[0];
 
     document.title = project.title + " | Krishna Padmanabhan";
 
     host.innerHTML = `
       <header class="case-hero" id="overview">
-        <div class="eyebrow">Public portfolio case study</div>
+        <div class="eyebrow">Project case study · Public portfolio edition</div>
         <h1>${escapeHtml(project.title)}</h1>
         <p>${escapeHtml(project.summary)}</p>
 
         <div class="chip-row">
-          ${project.tools
-            .slice(0, 6)
-            .map(function (tool) {
-              return `<span>${escapeHtml(tool)}</span>`;
-            })
-            .join("")}
+          ${project.skills.slice(0, 4).map(function (skill) {
+            return `<span>${escapeHtml(skill)}</span>`;
+          }).join("")}
         </div>
       </header>
 
-      <nav class="case-subnav" aria-label="Case study sections">
-        <div class="case-subnav-inner">
-          <a href="#overview">Overview</a>
-          <a href="#workflow">Workflow</a>
-          <a href="#contribution">Contribution</a>
-          <a href="#technology">Technology</a>
-          <a href="#outcome">Outcome</a>
-        </div>
+      <nav class="case-subnav" aria-label="Case study navigation">
+        <a href="#overview">Overview</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#contribution">Contribution</a>
+        <a href="#technology">Technology</a>
+        <a href="#outcome">Outcome</a>
       </nav>
 
-      <section
-        class="case-layout reveal"
-        data-accent="${escapeHtml(project.accent)}"
-      >
-        <div class="case-top">
-          <article class="case-title-panel">
-            <div class="section-label">
-              Project case study · Public portfolio edition
-            </div>
-
+      <section class="infographic reveal" data-accent="${escapeHtml(project.accent)}">
+        <section class="info-hero">
+          <div class="info-title">
+            <div class="section-label">Enterprise case study</div>
             <h2>${escapeHtml(project.title)}</h2>
             <p>${escapeHtml(project.summary)}</p>
-          </article>
 
-          <aside class="at-glance">
+            <div class="info-capabilities">
+              ${project.skills.slice(0, 4).map(function (skill) {
+                return `<span>${escapeHtml(skill)}</span>`;
+              }).join("")}
+            </div>
+          </div>
+
+          <aside class="info-glance">
             <div class="section-label">At a glance</div>
 
-            <div class="glance-row">
-              <span>Domain</span>
-              <strong>${escapeHtml(project.category)}</strong>
+            <div class="glance-item">
+              <span>${iconSvg("products")}</span>
+              <div><small>Domain</small><strong>${escapeHtml(project.glance.domain)}</strong></div>
             </div>
 
-            <div class="glance-row">
-              <span>Role</span>
-              <strong>IT business analysis and delivery leadership</strong>
+            <div class="glance-item">
+              <span>${iconSvg("approval")}</span>
+              <div><small>My role</small><strong>${escapeHtml(project.glance.role)}</strong></div>
             </div>
 
-            <div class="glance-row">
-              <span>Project type</span>
-              <strong>Sanitized enterprise case study</strong>
+            <div class="glance-item">
+              <span>${iconSvg("workflow")}</span>
+              <div><small>Team</small><strong>${escapeHtml(project.glance.team)}</strong></div>
             </div>
 
-            <div class="glance-row">
-              <span>Coverage</span>
-              <strong>Requirements through release readiness</strong>
+            <div class="glance-item">
+              <span>${iconSvg("document")}</span>
+              <div><small>Delivery</small><strong>${escapeHtml(project.glance.delivery)}</strong></div>
             </div>
           </aside>
-        </div>
+        </section>
 
-        <section class="case-block" id="workflow">
-          <div class="section-label">
-            Solution workflow · End-to-end lifecycle
-          </div>
+        <section class="info-section" id="workflow">
+          <div class="section-label">Solution workflow · End-to-end lifecycle</div>
 
-          <div class="workflow-grid">
-            ${project.workflow
-              .map(function (step, index) {
-                return `
-                  <article
-                    class="workflow-card"
-                    tabindex="0"
-                    role="button"
-                    aria-pressed="false"
-                  >
-                    <div class="step-number">${index + 1}</div>
-                    <h3>${escapeHtml(step[0])}</h3>
-                    <p>${escapeHtml(step[1])}</p>
+          <div class="workflow-track">
+            ${project.workflow.map(function (stage, index) {
+              return `
+                <article class="workflow-node" tabindex="0">
+                  <span class="node-number">${index + 1}</span>
+                  <span class="node-icon">${iconSvg(stage.icon)}</span>
+                  <h3>${escapeHtml(stage.title)}</h3>
+                  <p>${escapeHtml(stage.description)}</p>
 
-                    <div class="stage-detail">
-                      <div>
-                        <strong>Contribution focus:</strong>
-                        requirements clarity, traceability, validation,
-                        stakeholder coordination, and delivery readiness.
-                      </div>
-                    </div>
-                  </article>
-                `;
-              })
-              .join("")}
+                  <div class="node-tools">
+                    ${stage.tools.map(function (tool) {
+                      return `<span>${escapeHtml(tool)}</span>`;
+                    }).join("")}
+                  </div>
+                </article>
+              `;
+            }).join("")}
           </div>
         </section>
 
-        <section class="case-block">
+        <section class="info-section supporting-section">
           <div class="section-label">Supporting components</div>
 
-          <div class="support-grid">
-            ${project.supporting
-              .map(function (item) {
-                return `
-                  <article class="support-card">
-                    <h3>${escapeHtml(item[0])}</h3>
-                    <p>${escapeHtml(item[1])}</p>
-                  </article>
-                `;
-              })
-              .join("")}
+          <div class="supporting-track">
+            ${project.supporting.map(function (component) {
+              return `
+                <article class="supporting-item">
+                  <span class="supporting-icon">${iconSvg(component.icon)}</span>
+                  <div>
+                    <h3>${escapeHtml(component.title)}</h3>
+                    <p>${escapeHtml(component.description)}</p>
+                  </div>
+                </article>
+              `;
+            }).join("")}
           </div>
         </section>
 
-        <div class="case-insights">
-          <div class="case-column">
-            <section class="case-panel">
+        <section class="info-grid">
+          <div class="info-column">
+            <article class="detail-panel">
               <div class="section-label">Business challenge</div>
-              <h3>What needed to be solved</h3>
-              <p>${escapeHtml(project.challenge)}</p>
-            </section>
-
-            <section class="case-panel" id="contribution">
-              <div class="section-label">My contribution</div>
-              <h3>Where I added value</h3>
-              <p>${escapeHtml(project.role)}</p>
-            </section>
-          </div>
-
-          <div class="case-column">
-            <section class="case-panel" id="technology">
-              <div class="section-label">Technology and methods</div>
-
-              <div class="tool-grid">
-                ${project.tools
-                  .map(function (tool) {
-                    return `<span>${escapeHtml(tool)}</span>`;
-                  })
-                  .join("")}
+              <div class="panel-body">
+                <span class="large-icon">${iconSvg("requirements")}</span>
+                <p>${escapeHtml(project.challenge)}</p>
               </div>
-            </section>
+            </article>
 
-            <section class="case-panel" id="outcome">
-              <div class="section-label">Business outcome</div>
-              <h3>Result</h3>
-              <p>${escapeHtml(project.outcome)}</p>
-            </section>
+            <article class="detail-panel" id="contribution">
+              <div class="section-label">My contributions</div>
+              <div class="panel-body">
+                <span class="large-icon">${iconSvg("approval")}</span>
+                <ul>
+                  ${project.contributions.map(function (item) {
+                    return `<li>${escapeHtml(item)}</li>`;
+                  }).join("")}
+                </ul>
+              </div>
+            </article>
+
+            <article class="detail-panel">
+              <div class="section-label">Key features</div>
+              <div class="panel-body">
+                <span class="large-icon">${iconSvg("validation")}</span>
+                <ul>
+                  ${project.features.map(function (item) {
+                    return `<li>${escapeHtml(item)}</li>`;
+                  }).join("")}
+                </ul>
+              </div>
+            </article>
           </div>
-        </div>
 
-        <section class="case-block">
-          <div class="section-label">Skills demonstrated</div>
+          <div class="info-column">
+            <article class="detail-panel" id="technology">
+              <div class="section-label">Technology stack</div>
+              <div class="technology-grid">
+                ${project.tools.map(function (tool, index) {
+                  var iconNames = ["products","workflow","database","transform","sliders","document","api","chart"];
+                  return `
+                    <div class="technology-item">
+                      <span>${iconSvg(iconNames[index % iconNames.length])}</span>
+                      <strong>${escapeHtml(tool)}</strong>
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            </article>
 
-          <div class="skills-row">
-            ${project.skills
-              .map(function (skill) {
-                return `<span>${escapeHtml(skill)}</span>`;
-              })
-              .join("")}
+            <article class="detail-panel outcome-panel" id="outcome">
+              <div class="section-label">Business outcomes</div>
+              <div class="panel-body">
+                <span class="large-icon">${iconSvg("chart")}</span>
+                <ul>
+                  ${project.outcomes.map(function (item) {
+                    return `<li>${escapeHtml(item)}</li>`;
+                  }).join("")}
+                </ul>
+              </div>
+            </article>
           </div>
         </section>
 
-        <footer class="case-footer-panel">
+        <section class="skills-strip">
+          <span class="skills-icon">${iconSvg("logic")}</span>
           <div>
-            <div class="section-label">Confidentiality</div>
-            <p>
-              Employer names, internal product names, customer details,
-              proprietary screenshots, and confidential operational information
-              are intentionally excluded.
-            </p>
+            <div class="section-label">Skills demonstrated</div>
+            <div class="skills-list">
+              ${project.skills.map(function (skill) {
+                return `<span>${escapeHtml(skill)}</span>`;
+              }).join("")}
+            </div>
+          </div>
+        </section>
+
+        <section class="info-cta">
+          <span class="cta-icon">${iconSvg("requirements")}</span>
+
+          <div>
+            <div class="section-label">Interested in discussing similar solutions?</div>
+            <p>Let’s connect to discuss how product thinking, business analysis, and enterprise delivery can support your team.</p>
           </div>
 
-          <a class="button" href="contact.html">Contact</a>
-        </footer>
+          <div class="info-cta-actions">
+            <a class="button" href="contact.html">Contact me</a>
+            <a class="button secondary" href="experience.html">View experience</a>
+          </div>
+        </section>
       </section>
 
-      <div class="case-actions">
-        <a class="button" href="index.html#projects">
-          Back to projects
-        </a>
+      <p class="confidentiality-note">
+        Sanitized conceptual representation. Employer names, internal product names,
+        customer details, proprietary screenshots, and confidential operational information are excluded.
+      </p>
 
-        <a class="button secondary" href="experience.html">
-          View experience
-        </a>
+      <div class="case-actions">
+        <a class="button secondary" href="index.html#projects">Back to projects</a>
       </div>
     `;
+
+    var infographic = qs(".infographic", host);
+    setProjectVariables(infographic, project.accent);
   }
 
   renderProjectCards();
   renderProjectPage();
 
-  /* =======================================================
-     SEARCH + FILTERS
-  ======================================================= */
-
   function setupFilters() {
     var grid = qs("[data-project-grid]");
 
-    if (!grid || !window.PORTFOLIO_PROJECTS) {
-      return;
-    }
+    if (!grid || !window.PORTFOLIO_PROJECTS) return;
 
-    var categories = ["All"].concat(
-      Array.from(
-        new Set(
-          window.PORTFOLIO_PROJECTS.map(function (project) {
-            return project.category;
-          })
-        )
-      )
-    );
+    var categories = ["All"].concat(Array.from(new Set(
+      window.PORTFOLIO_PROJECTS.map(function (project) {
+        return project.category;
+      })
+    )));
 
-    var shell = document.createElement("div");
-    shell.className = "project-filter";
+    var filter = document.createElement("div");
+    filter.className = "project-filter";
 
-    shell.innerHTML = `
-      <div class="project-filter-row">
-        <input
-          class="project-search"
-          type="search"
-          placeholder="Search projects, technologies, or skills"
-          aria-label="Search case studies"
-        >
-
-        ${categories
-          .map(function (category, index) {
-            return `
-              <button
-                class="filter-pill${index === 0 ? " is-active" : ""}"
-                type="button"
-                data-category="${escapeHtml(category)}"
-              >
-                ${escapeHtml(category)}
-              </button>
-            `;
-          })
-          .join("")}
+    filter.innerHTML = `
+      <input class="project-search" type="search" placeholder="Search projects, technologies, or skills" aria-label="Search projects">
+      <div class="filter-buttons">
+        ${categories.map(function (category, index) {
+          return `<button type="button" class="filter-pill${index === 0 ? " is-active" : ""}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>`;
+        }).join("")}
       </div>
     `;
 
-    grid.parentElement.insertBefore(shell, grid);
+    grid.parentElement.insertBefore(filter, grid);
 
-    var search = qs(".project-search", shell);
-    var buttons = qsa(".filter-pill", shell);
-    var activeCategory = "All";
+    var search = qs(".project-search", filter);
+    var buttons = qsa(".filter-pill", filter);
+    var active = "All";
 
-    function applyFilters() {
+    function apply() {
       var query = normalize(search.value);
-      var visible = 0;
 
       qsa(".project-card", grid).forEach(function (card) {
-        var matchesCategory =
-          activeCategory === "All" ||
-          card.getAttribute("data-category") === activeCategory;
-
-        var matchesSearch =
-          !query ||
-          normalize(card.getAttribute("data-search")).includes(query);
-
-        var show = matchesCategory && matchesSearch;
-
-        card.hidden = !show;
-
-        if (show) {
-          visible += 1;
-        }
+        var categoryMatch = active === "All" || card.getAttribute("data-category") === active;
+        var searchMatch = !query || normalize(card.getAttribute("data-search")).includes(query);
+        card.hidden = !(categoryMatch && searchMatch);
       });
-
-      var empty = qs(".project-empty", grid);
-
-      if (empty) {
-        empty.remove();
-      }
-
-      if (visible === 0) {
-        empty = document.createElement("div");
-        empty.className = "project-empty";
-        empty.textContent = "No case studies match your search.";
-        grid.appendChild(empty);
-      }
     }
 
-    search.addEventListener("input", applyFilters);
+    search.addEventListener("input", apply);
 
     buttons.forEach(function (button) {
       button.addEventListener("click", function () {
-        activeCategory = button.getAttribute("data-category");
+        active = button.getAttribute("data-category");
 
         buttons.forEach(function (item) {
           item.classList.toggle("is-active", item === button);
         });
 
-        applyFilters();
+        apply();
       });
     });
   }
 
   setupFilters();
 
-  /* =======================================================
-     PREMIUM TILE INTERACTION
-  ======================================================= */
-
-  function setupPremiumCards() {
-    if (!finePointer() || reducedMotion()) {
-      return;
-    }
-
-    qsa(".project-card").forEach(function (card) {
-      var bounds = null;
-
-      function reset() {
-        card.classList.remove("is-interactive");
-        card.style.setProperty("--tilt-x", "0deg");
-        card.style.setProperty("--tilt-y", "0deg");
-        card.style.setProperty("--pointer-x", "50%");
-        card.style.setProperty("--pointer-y", "50%");
-      }
-
-      card.addEventListener("mouseenter", function () {
-        bounds = card.getBoundingClientRect();
-        card.classList.add("is-interactive");
-      });
-
-      card.addEventListener("mousemove", function (event) {
-        if (!bounds) {
-          bounds = card.getBoundingClientRect();
-        }
-
-        var x = event.clientX - bounds.left;
-        var y = event.clientY - bounds.top;
-
-        var px = x / bounds.width;
-        var py = y / bounds.height;
-
-        var tiltY = (px - 0.5) * 4.5;
-        var tiltX = (0.5 - py) * 3.5;
-
-        card.style.setProperty("--pointer-x", px * 100 + "%");
-        card.style.setProperty("--pointer-y", py * 100 + "%");
-        card.style.setProperty("--tilt-x", tiltX.toFixed(2) + "deg");
-        card.style.setProperty("--tilt-y", tiltY.toFixed(2) + "deg");
-      });
-
-      card.addEventListener("mouseleave", reset);
-      card.addEventListener("blur", reset, true);
-    });
-  }
-
-  setupPremiumCards();
-
-  /* =======================================================
-     WORKFLOW INTERACTION
-  ======================================================= */
-
-  function setupWorkflowInteraction() {
-    var grid = qs(".workflow-grid");
-
-    if (!grid) {
-      return;
-    }
-
-    var cards = qsa(".workflow-card", grid);
-
-    function clear() {
-      grid.classList.remove("has-focus");
-
-      cards.forEach(function (card) {
-        card.classList.remove("is-focused");
-        card.setAttribute("aria-pressed", "false");
-      });
-    }
-
-    function toggle(card) {
-      var open = !card.classList.contains("is-focused");
-
-      clear();
-
-      if (open) {
-        grid.classList.add("has-focus");
-        card.classList.add("is-focused");
-        card.setAttribute("aria-pressed", "true");
-      }
-    }
-
-    cards.forEach(function (card) {
-      card.addEventListener("click", function () {
-        toggle(card);
-      });
-
-      card.addEventListener("keydown", function (event) {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          toggle(card);
-        }
-      });
-    });
-
-    document.addEventListener("click", function (event) {
-      if (!event.target.closest(".workflow-card")) {
-        clear();
-      }
-    });
-  }
-
-  setupWorkflowInteraction();
-
-  /* =======================================================
-     ACTIVE CASE NAV
-  ======================================================= */
-
-  function setupCaseTracking() {
-    var links = qsa(".case-subnav a");
-
-    if (!links.length) {
-      return;
-    }
-
-    var sections = links
-      .map(function (link) {
-        return qs(link.getAttribute("href"));
-      })
-      .filter(Boolean);
-
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) {
-            return;
-          }
-
-          links.forEach(function (link) {
-            link.classList.toggle(
-              "is-active",
-              link.getAttribute("href") === "#" + entry.target.id
-            );
-          });
-        });
-      },
-      {
-        rootMargin: "-32% 0px -58% 0px",
-        threshold: 0
-      }
-    );
-
-    sections.forEach(function (section) {
-      observer.observe(section);
-    });
-  }
-
-  setupCaseTracking();
-
-  /* =======================================================
-     REVEAL
-  ======================================================= */
-
   function setupReveal() {
-    var targets = qsa(
-      ".reveal, .project-card, .timeline-card, .content-card, .contact-row, .case-layout"
-    );
-
-    if (!targets.length) {
-      return;
-    }
+    var elements = qsa(".reveal, .project-card, .timeline-card, .content-card, .contact-row");
 
     if (!("IntersectionObserver" in window)) {
-      targets.forEach(function (element) {
+      elements.forEach(function (element) {
         element.classList.add("is-visible");
       });
       return;
     }
 
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "0px 0px -30px 0px"
-      }
-    );
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -28px 0px" });
 
-    targets.forEach(function (element, index) {
+    elements.forEach(function (element, index) {
       element.classList.add("reveal");
-      element.style.transitionDelay = Math.min(index * 32, 190) + "ms";
+      element.style.transitionDelay = Math.min(index * 28, 180) + "ms";
       observer.observe(element);
     });
   }
 
   setupReveal();
 
-  /* =======================================================
-     COMMAND PALETTE — DARK ONLY
-  ======================================================= */
+  function setupNavigation() {
+    var current = window.location.pathname.split("/").pop() || "index.html";
 
-  var commandItems = [
-    { title: "Home", description: "Portfolio homepage", href: "index.html" },
-    { title: "Experience", description: "Professional experience", href: "experience.html" },
-    { title: "About", description: "Professional approach", href: "about.html" },
-    { title: "Contact", description: "Contact information", href: "contact.html" }
-  ];
+    qsa(".nav-links a").forEach(function (link) {
+      var page = (link.getAttribute("href") || "").split("#")[0].split("/").pop();
 
-  if (window.PORTFOLIO_PROJECTS) {
-    window.PORTFOLIO_PROJECTS.forEach(function (project) {
-      commandItems.push({
-        title: project.title,
-        description: project.category,
-        href: "project.html?id=" + encodeURIComponent(project.slug)
+      if (page === current) {
+        link.setAttribute("aria-current", "page");
+      }
+    });
+
+    var header = qs(".site-header");
+
+    if (header) {
+      function update() {
+        header.classList.toggle("scrolled", window.scrollY > 8);
+      }
+
+      update();
+      window.addEventListener("scroll", update, { passive: true });
+    }
+  }
+
+  setupNavigation();
+
+  function setupProgress() {
+    var progress = document.createElement("div");
+    progress.className = "page-progress";
+    document.body.appendChild(progress);
+
+    function update() {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var percentage = max > 0 ? (window.scrollY / max) * 100 : 0;
+      progress.style.width = Math.min(100, Math.max(0, percentage)) + "%";
+    }
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+  }
+
+  setupProgress();
+
+  function setupWorkflowFocus() {
+    qsa(".workflow-node").forEach(function (node) {
+      node.addEventListener("click", function () {
+        var track = node.parentElement;
+        var open = !node.classList.contains("is-active");
+
+        qsa(".workflow-node", track).forEach(function (item) {
+          item.classList.remove("is-active");
+        });
+
+        track.classList.toggle("has-active", open);
+
+        if (open) {
+          node.classList.add("is-active");
+        }
+      });
+
+      node.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          node.click();
+        }
       });
     });
   }
 
-  var palette = document.createElement("div");
-  palette.className = "command-palette";
-  palette.setAttribute("aria-hidden", "true");
-
-  palette.innerHTML = `
-    <div class="command-backdrop" data-command-close></div>
-
-    <div
-      class="command-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Quick navigation"
-    >
-      <input
-        class="command-input"
-        type="search"
-        placeholder="Search pages and case studies"
-        aria-label="Search pages and case studies"
-      >
-
-      <div class="command-results"></div>
-    </div>
-  `;
-
-  document.body.appendChild(palette);
-
-  var commandInput = qs(".command-input", palette);
-  var commandResults = qs(".command-results", palette);
-  var selectedIndex = 0;
-
-  function renderCommandResults(query) {
-    var filtered = commandItems.filter(function (item) {
-      return normalize(item.title + " " + item.description)
-        .includes(normalize(query));
-    });
-
-    if (!filtered.length) {
-      commandResults.innerHTML =
-        '<div class="project-empty">No results found.</div>';
-      return;
-    }
-
-    selectedIndex = Math.min(selectedIndex, filtered.length - 1);
-
-    commandResults.innerHTML = filtered
-      .map(function (item, index) {
-        return `
-          <button
-            class="command-item${index === selectedIndex ? " is-selected" : ""}"
-            type="button"
-            data-href="${escapeHtml(item.href)}"
-          >
-            <span>${escapeHtml(item.title)}</span>
-            <small>${escapeHtml(item.description)}</small>
-          </button>
-        `;
-      })
-      .join("");
-  }
-
-  function openPalette() {
-    palette.classList.add("is-open");
-    palette.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-    selectedIndex = 0;
-    commandInput.value = "";
-    renderCommandResults("");
-
-    setTimeout(function () {
-      commandInput.focus();
-    }, 0);
-  }
-
-  function closePalette() {
-    palette.classList.remove("is-open");
-    palette.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-  }
-
-  commandInput.addEventListener("input", function () {
-    selectedIndex = 0;
-    renderCommandResults(commandInput.value);
-  });
-
-  commandResults.addEventListener("click", function (event) {
-    var item = event.target.closest(".command-item");
-
-    if (item) {
-      window.location.href = item.getAttribute("data-href");
-    }
-  });
-
-  palette.addEventListener("click", function (event) {
-    if (event.target.hasAttribute("data-command-close")) {
-      closePalette();
-    }
-  });
-
-  document.addEventListener("keydown", function (event) {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
-      event.preventDefault();
-
-      palette.classList.contains("is-open")
-        ? closePalette()
-        : openPalette();
-
-      return;
-    }
-
-    if (!palette.classList.contains("is-open")) {
-      return;
-    }
-
-    if (event.key === "Escape") {
-      closePalette();
-    }
-
-    var items = qsa(".command-item", commandResults);
-
-    if (event.key === "ArrowDown" && items.length) {
-      event.preventDefault();
-      selectedIndex = (selectedIndex + 1) % items.length;
-      renderCommandResults(commandInput.value);
-    }
-
-    if (event.key === "ArrowUp" && items.length) {
-      event.preventDefault();
-      selectedIndex =
-        (selectedIndex - 1 + items.length) % items.length;
-      renderCommandResults(commandInput.value);
-    }
-
-    if (event.key === "Enter") {
-      event.preventDefault();
-
-      var selected = qs(".command-item.is-selected", commandResults);
-
-      if (selected) {
-        window.location.href = selected.getAttribute("data-href");
-      }
-    }
-  });
-
-  var commandButton = document.createElement("button");
-  commandButton.type = "button";
-  commandButton.className = "floating-command";
-  commandButton.setAttribute("aria-label", "Open quick navigation");
-  commandButton.title = "Quick navigation (Ctrl+K)";
-  commandButton.textContent = "⌘";
-
-  commandButton.addEventListener("click", openPalette);
-  document.body.appendChild(commandButton);
+  setupWorkflowFocus();
 })();
