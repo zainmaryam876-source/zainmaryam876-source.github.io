@@ -1,15 +1,11 @@
 /* =========================================================
-   KRISHNA PORTFOLIO — ADVANCED UI/UX ENGINE
+   KRISHNA PORTFOLIO — DARK PREMIUM UI/UX ENGINE
    Replace: assets/js/site.js
-   Works with the current HTML, site.css, and projects-data.js
+   Requires: assets/js/projects-data.js
 ========================================================= */
 
 (function () {
   "use strict";
-
-  /* =======================================================
-     HELPERS
-  ======================================================= */
 
   function qs(selector, scope) {
     return (scope || document).querySelector(selector);
@@ -32,27 +28,22 @@
     return String(value || "").trim().toLowerCase();
   }
 
-  function isFinePointer() {
+  function finePointer() {
     return window.matchMedia &&
       window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   }
 
-  function prefersReducedMotion() {
+  function reducedMotion() {
     return window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
-
-  /* =======================================================
-     YEAR
-  ======================================================= */
 
   qsa("[data-year]").forEach(function (element) {
     element.textContent = new Date().getFullYear();
   });
 
   /* =======================================================
-     ADVANCED STYLES
-     Injected so this remains a one-file upgrade.
+     STYLES FOR NEW FUNCTIONALITY
   ======================================================= */
 
   var style = document.createElement("style");
@@ -60,16 +51,6 @@
   style.textContent = `
     :root {
       --page-progress: 0%;
-    }
-
-    html {
-      view-transition-name: root;
-    }
-
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-      animation-duration: 260ms;
-      animation-timing-function: cubic-bezier(.22, 1, .36, 1);
     }
 
     .page-progress {
@@ -80,56 +61,8 @@
       width: var(--page-progress);
       height: 3px;
       pointer-events: none;
-      background:
-        linear-gradient(
-          90deg,
-          var(--accent, #35d4f1),
-          #7c8cff 60%,
-          #ba79ff
-        );
-      box-shadow:
-        0 0 14px rgba(53, 212, 241, .46),
-        0 0 28px rgba(124, 140, 255, .22);
-    }
-
-    .floating-actions {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index: 150;
-      display: flex;
-      gap: 10px;
-    }
-
-    .floating-action {
-      width: 46px;
-      height: 46px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(54, 87, 121, .9);
-      border-radius: 14px;
-      background: rgba(7, 17, 31, .82);
-      color: #eef5ff;
-      cursor: pointer;
-      box-shadow:
-        0 18px 42px rgba(0, 0, 0, .34),
-        inset 0 1px 0 rgba(255, 255, 255, .05);
-      backdrop-filter: blur(16px) saturate(140%);
-      transition:
-        transform .22s cubic-bezier(.22, 1, .36, 1),
-        border-color .22s ease,
-        background .22s ease,
-        box-shadow .22s ease;
-    }
-
-    .floating-action:hover {
-      transform: translateY(-4px) scale(1.03);
-      border-color: var(--accent, #35d4f1);
-      background: rgba(13, 35, 59, .95);
-      box-shadow:
-        0 22px 48px rgba(0, 0, 0, .38),
-        0 0 0 1px rgba(53, 212, 241, .18);
+      background: linear-gradient(90deg, var(--accent, #35d4f1), #7c8cff, #ba79ff);
+      box-shadow: 0 0 16px rgba(53, 212, 241, .45);
     }
 
     .project-filter {
@@ -158,18 +91,11 @@
       background: rgba(11, 24, 42, .92);
       color: var(--text, #f4f7fb);
       outline: none;
-      transition:
-        border-color .2s ease,
-        box-shadow .2s ease,
-        background .2s ease;
     }
 
     .project-search:focus {
       border-color: var(--accent, #35d4f1);
-      background: rgba(14, 32, 55, .98);
-      box-shadow:
-        0 0 0 4px rgba(53, 212, 241, .09),
-        0 10px 28px rgba(0, 0, 0, .18);
+      box-shadow: 0 0 0 4px rgba(53, 212, 241, .09);
     }
 
     .filter-pill {
@@ -215,7 +141,118 @@
       text-align: center;
     }
 
-    /* Premium pointer-following card interaction */
+    /* Mini infographic inside every project tile */
+    .project-mini-graphic {
+      position: relative;
+      margin: 22px 0 2px;
+      padding: 16px;
+      overflow: hidden;
+      border: 1px solid color-mix(
+        in srgb,
+        var(--project-card-accent, #35d4f1) 26%,
+        var(--line, #243b59)
+      );
+      border-radius: 14px;
+      background:
+        radial-gradient(
+          circle at 85% 12%,
+          color-mix(in srgb, var(--project-card-accent, #35d4f1) 12%, transparent),
+          transparent 32%
+        ),
+        rgba(7, 17, 31, .74);
+    }
+
+    .project-mini-graphic::before {
+      content: "";
+      position: absolute;
+      top: 34px;
+      left: 27px;
+      right: 27px;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--project-card-accent, #35d4f1) 70%, transparent),
+        transparent
+      );
+      opacity: .8;
+    }
+
+    .mini-flow {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mini-step {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .mini-dot {
+      position: relative;
+      z-index: 1;
+      width: 25px;
+      height: 25px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      border: 1px solid color-mix(
+        in srgb,
+        var(--project-card-accent, #35d4f1) 72%,
+        white 8%
+      );
+      border-radius: 50%;
+      background: #081321;
+      color: var(--project-card-accent, #35d4f1);
+      font-size: .68rem;
+      font-weight: 850;
+      box-shadow:
+        0 0 0 4px rgba(7, 17, 31, .8),
+        0 0 18px color-mix(
+          in srgb,
+          var(--project-card-accent, #35d4f1) 16%,
+          transparent
+        );
+    }
+
+    .mini-step strong {
+      display: block;
+      overflow: hidden;
+      color: var(--text-soft, #d8e2ee);
+      font-size: .69rem;
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mini-step span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted, #9eafc3);
+      font-size: .61rem;
+      line-height: 1.25;
+    }
+
+    .mini-tech-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .mini-tech-row span {
+      padding: 4px 7px;
+      border: 1px solid var(--line, #243b59);
+      border-radius: 999px;
+      color: var(--muted, #9eafc3);
+      font-size: .62rem;
+      font-weight: 700;
+    }
+
+    /* Premium pointer-following depth */
     .project-card {
       --pointer-x: 50%;
       --pointer-y: 50%;
@@ -224,7 +261,7 @@
       --lift: 0px;
 
       transform:
-        perspective(1100px)
+        perspective(1200px)
         rotateX(var(--tilt-x))
         rotateY(var(--tilt-y))
         translateY(var(--lift));
@@ -247,9 +284,13 @@
       opacity: 0;
       background:
         radial-gradient(
-          360px circle at var(--pointer-x) var(--pointer-y),
-          color-mix(in srgb, var(--project-card-accent, #35d4f1) 20%, transparent),
-          transparent 62%
+          380px circle at var(--pointer-x) var(--pointer-y),
+          color-mix(
+            in srgb,
+            var(--project-card-accent, #35d4f1) 18%,
+            transparent
+          ),
+          transparent 64%
         );
       transition: opacity 220ms ease;
     }
@@ -263,14 +304,14 @@
       --lift: -7px;
       border-color: color-mix(
         in srgb,
-        var(--project-card-accent, #35d4f1) 72%,
+        var(--project-card-accent, #35d4f1) 70%,
         var(--line, #243b59)
       );
       box-shadow:
         0 30px 72px rgba(0, 0, 0, .38),
         0 0 0 1px color-mix(
           in srgb,
-          var(--project-card-accent, #35d4f1) 18%,
+          var(--project-card-accent, #35d4f1) 16%,
           transparent
         );
     }
@@ -282,6 +323,7 @@
     .project-card .project-meta,
     .project-card h3,
     .project-card p,
+    .project-card .project-mini-graphic,
     .project-card > a {
       transform: translateZ(0);
       transition: transform 260ms cubic-bezier(.22, 1, .36, 1);
@@ -291,98 +333,17 @@
       transform: translateZ(18px);
     }
 
+    .project-card.is-interactive .project-mini-graphic {
+      transform: translateZ(14px);
+    }
+
     .project-card.is-interactive .project-meta,
     .project-card.is-interactive p {
-      transform: translateZ(10px);
+      transform: translateZ(9px);
     }
 
     .project-card.is-interactive > a {
       transform: translateZ(16px) translateX(4px);
-    }
-
-    .command-palette {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      display: none;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 10vh 18px 18px;
-    }
-
-    .command-palette.is-open {
-      display: flex;
-    }
-
-    .command-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(2, 8, 16, .8);
-      backdrop-filter: blur(12px);
-    }
-
-    .command-dialog {
-      position: relative;
-      z-index: 1;
-      width: min(680px, 100%);
-      overflow: hidden;
-      border: 1px solid rgba(54, 87, 121, .94);
-      border-radius: 18px;
-      background: #07111f;
-      box-shadow: 0 34px 100px rgba(0, 0, 0, .58);
-      animation: command-enter 220ms cubic-bezier(.22, 1, .36, 1);
-    }
-
-    @keyframes command-enter {
-      from {
-        opacity: 0;
-        transform: translateY(14px) scale(.985);
-      }
-      to {
-        opacity: 1;
-        transform: none;
-      }
-    }
-
-    .command-input {
-      width: 100%;
-      padding: 18px 20px;
-      border: 0;
-      border-bottom: 1px solid var(--line, #243b59);
-      background: transparent;
-      color: var(--text, #f4f7fb);
-      outline: none;
-      font-size: 1rem;
-    }
-
-    .command-results {
-      max-height: 58vh;
-      overflow: auto;
-      padding: 10px;
-    }
-
-    .command-item {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 18px;
-      padding: 13px 14px;
-      border: 0;
-      border-radius: 11px;
-      background: transparent;
-      color: var(--text, #f4f7fb);
-      text-align: left;
-      cursor: pointer;
-      transition: background .16s ease;
-    }
-
-    .command-item:hover,
-    .command-item.is-selected {
-      background: rgba(53, 212, 241, .1);
-    }
-
-    .command-item small {
-      color: var(--muted, #9eafc3);
     }
 
     .case-subnav {
@@ -476,70 +437,120 @@
       border-color: var(--line, #243b59);
     }
 
-    .theme-light {
-      --bg: #eef3f8;
-      --bg-2: #f7fafc;
-      --bg-3: #ffffff;
-      --panel: #ffffff;
-      --panel-2: #f4f7fb;
-      --panel-3: #edf3f8;
-      --text: #102033;
-      --text-soft: #25384d;
-      --muted: #64748b;
-      --line: #d5e0ea;
-      --line-2: #b9c9d9;
-      --shadow-sm: 0 14px 36px rgba(15, 35, 58, .08);
-      --shadow-lg: 0 28px 80px rgba(15, 35, 58, .12);
-
-      background:
-        radial-gradient(circle at 82% -8%, rgba(117, 190, 220, .22) 0, transparent 34%),
-        linear-gradient(180deg, #f8fbfe 0%, #eef4f8 100%);
-      color: var(--text);
+    .floating-command {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 150;
+      width: 46px;
+      height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(54, 87, 121, .9);
+      border-radius: 14px;
+      background: rgba(7, 17, 31, .82);
+      color: #eef5ff;
+      cursor: pointer;
+      box-shadow:
+        0 18px 42px rgba(0, 0, 0, .34),
+        inset 0 1px 0 rgba(255, 255, 255, .05);
+      backdrop-filter: blur(16px);
     }
 
-    .theme-light .site-header,
-    .theme-light .case-subnav {
-      background: rgba(248, 251, 254, .92);
+    .floating-command:hover {
+      border-color: var(--accent, #35d4f1);
+      transform: translateY(-3px);
     }
 
-    .theme-light .hero-panel,
-    .theme-light .project-card,
-    .theme-light .metrics article,
-    .theme-light .timeline-card,
-    .theme-light .content-card,
-    .theme-light .contact-row,
-    .theme-light .case-layout,
-    .theme-light .case-title-panel,
-    .theme-light .at-glance,
-    .theme-light .case-block,
-    .theme-light .case-panel,
-    .theme-light .case-footer-panel,
-    .theme-light .workflow-card,
-    .theme-light .support-card,
-    .theme-light .tool-grid span {
-      background: #ffffff;
+    .command-palette {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 10vh 18px 18px;
     }
 
-    .theme-light .floating-action,
-    .theme-light .project-filter,
-    .theme-light .command-dialog {
-      background: rgba(255, 255, 255, .96);
-      color: var(--text);
+    .command-palette.is-open {
+      display: flex;
+    }
+
+    .command-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 8, 16, .8);
+      backdrop-filter: blur(12px);
+    }
+
+    .command-dialog {
+      position: relative;
+      z-index: 1;
+      width: min(680px, 100%);
+      overflow: hidden;
+      border: 1px solid rgba(54, 87, 121, .94);
+      border-radius: 18px;
+      background: #07111f;
+      box-shadow: 0 34px 100px rgba(0, 0, 0, .58);
+    }
+
+    .command-input {
+      width: 100%;
+      padding: 18px 20px;
+      border: 0;
+      border-bottom: 1px solid var(--line, #243b59);
+      background: transparent;
+      color: var(--text, #f4f7fb);
+      outline: none;
+      font-size: 1rem;
+    }
+
+    .command-results {
+      max-height: 58vh;
+      overflow: auto;
+      padding: 10px;
+    }
+
+    .command-item {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      padding: 13px 14px;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--text, #f4f7fb);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .command-item:hover,
+    .command-item.is-selected {
+      background: rgba(53, 212, 241, .1);
+    }
+
+    .command-item small {
+      color: var(--muted, #9eafc3);
     }
 
     @media (max-width: 760px) {
+      .mini-flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .project-mini-graphic::before {
+        display: none;
+      }
+
       .case-subnav {
         top: 116px;
       }
 
-      .floating-actions {
+      .floating-command {
         right: 12px;
         bottom: 12px;
-      }
-
-      .floating-action {
-        width: 42px;
-        height: 42px;
       }
     }
 
@@ -558,55 +569,19 @@
   document.head.appendChild(style);
 
   /* =======================================================
-     PAGE TRANSITIONS
+     NAV + PROGRESS
   ======================================================= */
 
-  document.addEventListener("click", function (event) {
-    var anchor = event.target.closest("a");
-
-    if (!anchor) {
-      return;
-    }
-
-    var href = anchor.getAttribute("href") || "";
-
-    if (
-      !href ||
-      href.startsWith("#") ||
-      href.startsWith("mailto:") ||
-      href.startsWith("tel:") ||
-      href.startsWith("http") ||
-      anchor.target === "_blank" ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return;
-    }
-
-    if (!("startViewTransition" in document)) {
-      return;
-    }
-
-    event.preventDefault();
-
-    document.startViewTransition(function () {
-      window.location.href = href;
-    });
-  });
-
-  /* =======================================================
-     ACTIVE NAV
-  ======================================================= */
-
-  (function highlightActiveNavigation() {
+  (function activeNav() {
     var current =
       window.location.pathname.split("/").pop() || "index.html";
 
     qsa(".nav-links a, .links a").forEach(function (link) {
-      var href = link.getAttribute("href") || "";
-      var page = href.split("#")[0].split("/").pop();
+      var page =
+        (link.getAttribute("href") || "")
+          .split("#")[0]
+          .split("/")
+          .pop();
 
       if (page === current) {
         link.setAttribute("aria-current", "page");
@@ -614,11 +589,7 @@
     });
   })();
 
-  /* =======================================================
-     NAV SCROLL STATE
-  ======================================================= */
-
-  (function setupNavScrollState() {
+  (function navScroll() {
     var header = qs(".site-header, .nav");
 
     if (!header) {
@@ -632,10 +603,6 @@
     update();
     window.addEventListener("scroll", update, { passive: true });
   })();
-
-  /* =======================================================
-     SCROLL PROGRESS
-  ======================================================= */
 
   var progress = document.createElement("div");
   progress.className = "page-progress";
@@ -657,13 +624,27 @@
   }
 
   updateProgress();
-
   window.addEventListener("scroll", updateProgress, { passive: true });
   window.addEventListener("resize", updateProgress);
 
   /* =======================================================
-     PROJECT CARDS
+     PROJECT TILE INFOGRAPHICS
   ======================================================= */
+
+  function previewSteps(project) {
+    var workflow = project.workflow || [];
+
+    if (workflow.length <= 4) {
+      return workflow;
+    }
+
+    return [
+      workflow[0],
+      workflow[Math.floor((workflow.length - 1) / 3)],
+      workflow[Math.floor(((workflow.length - 1) * 2) / 3)],
+      workflow[workflow.length - 1]
+    ];
+  }
 
   function renderProjectCards() {
     var grid = qs("[data-project-grid]");
@@ -674,6 +655,8 @@
 
     grid.innerHTML = window.PORTFOLIO_PROJECTS
       .map(function (project) {
+        var steps = previewSteps(project);
+
         var searchable =
           project.title +
           " " +
@@ -681,7 +664,9 @@
           " " +
           project.summary +
           " " +
-          project.tools.join(" ");
+          project.tools.join(" ") +
+          " " +
+          project.skills.join(" ");
 
         return `
           <article
@@ -699,8 +684,36 @@
 
             <p>${escapeHtml(project.summary)}</p>
 
+            <div
+              class="project-mini-graphic"
+              aria-label="${escapeHtml(project.title)} workflow preview"
+            >
+              <div class="mini-flow">
+                ${steps
+                  .map(function (step, index) {
+                    return `
+                      <div class="mini-step">
+                        <span class="mini-dot">${index + 1}</span>
+                        <strong>${escapeHtml(step[0])}</strong>
+                        <span>${escapeHtml(step[1])}</span>
+                      </div>
+                    `;
+                  })
+                  .join("")}
+              </div>
+
+              <div class="mini-tech-row">
+                ${project.tools
+                  .slice(0, 4)
+                  .map(function (tool) {
+                    return `<span>${escapeHtml(tool)}</span>`;
+                  })
+                  .join("")}
+              </div>
+            </div>
+
             <a href="project.html?id=${encodeURIComponent(project.slug)}">
-              View case study →
+              Explore case study →
             </a>
           </article>
         `;
@@ -709,7 +722,7 @@
   }
 
   /* =======================================================
-     PROJECT PAGE
+     FULL PROJECT INFOGRAPHIC
   ======================================================= */
 
   function renderProjectPage() {
@@ -732,9 +745,7 @@
     host.innerHTML = `
       <header class="case-hero" id="overview">
         <div class="eyebrow">Public portfolio case study</div>
-
         <h1>${escapeHtml(project.title)}</h1>
-
         <p>${escapeHtml(project.summary)}</p>
 
         <div class="chip-row">
@@ -768,7 +779,6 @@
             </div>
 
             <h2>${escapeHtml(project.title)}</h2>
-
             <p>${escapeHtml(project.summary)}</p>
           </article>
 
@@ -782,17 +792,17 @@
 
             <div class="glance-row">
               <span>Role</span>
-              <strong>Business analysis and product delivery</strong>
+              <strong>IT business analysis and delivery leadership</strong>
             </div>
 
             <div class="glance-row">
               <span>Project type</span>
-              <strong>Sanitized public case study</strong>
+              <strong>Sanitized enterprise case study</strong>
             </div>
 
             <div class="glance-row">
-              <span>Delivery</span>
-              <strong>Enterprise workflow</strong>
+              <span>Coverage</span>
+              <strong>Requirements through release readiness</strong>
             </div>
           </aside>
         </div>
@@ -813,16 +823,14 @@
                     aria-pressed="false"
                   >
                     <div class="step-number">${index + 1}</div>
-
                     <h3>${escapeHtml(step[0])}</h3>
-
                     <p>${escapeHtml(step[1])}</p>
 
                     <div class="stage-detail">
                       <div>
                         <strong>Contribution focus:</strong>
-                        requirements clarity, validation, stakeholder alignment,
-                        and delivery readiness for this stage.
+                        requirements clarity, traceability, validation,
+                        stakeholder coordination, and delivery readiness.
                       </div>
                     </div>
                   </article>
@@ -833,9 +841,7 @@
         </section>
 
         <section class="case-block">
-          <div class="section-label">
-            Supporting components
-          </div>
+          <div class="section-label">Supporting components</div>
 
           <div class="support-grid">
             ${project.supporting
@@ -903,9 +909,9 @@
           <div>
             <div class="section-label">Confidentiality</div>
             <p>
-              Employer names, product names, customer details,
-              proprietary screenshots and internal metrics are
-              intentionally excluded.
+              Employer names, internal product names, customer details,
+              proprietary screenshots, and confidential operational information
+              are intentionally excluded.
             </p>
           </div>
 
@@ -929,7 +935,7 @@
   renderProjectPage();
 
   /* =======================================================
-     FILTERS
+     SEARCH + FILTERS
   ======================================================= */
 
   function setupFilters() {
@@ -1037,11 +1043,11 @@
   setupFilters();
 
   /* =======================================================
-     PREMIUM CARD INTERACTION
+     PREMIUM TILE INTERACTION
   ======================================================= */
 
   function setupPremiumCards() {
-    if (!isFinePointer() || prefersReducedMotion()) {
+    if (!finePointer() || reducedMotion()) {
       return;
     }
 
@@ -1072,8 +1078,8 @@
         var px = x / bounds.width;
         var py = y / bounds.height;
 
-        var tiltY = (px - 0.5) * 5;
-        var tiltX = (0.5 - py) * 4;
+        var tiltY = (px - 0.5) * 4.5;
+        var tiltX = (0.5 - py) * 3.5;
 
         card.style.setProperty("--pointer-x", px * 100 + "%");
         card.style.setProperty("--pointer-y", py * 100 + "%");
@@ -1145,7 +1151,7 @@
   setupWorkflowInteraction();
 
   /* =======================================================
-     ACTIVE CASE SUBNAV
+     ACTIVE CASE NAV
   ======================================================= */
 
   function setupCaseTracking() {
@@ -1206,7 +1212,6 @@
       targets.forEach(function (element) {
         element.classList.add("is-visible");
       });
-
       return;
     }
 
@@ -1227,7 +1232,7 @@
 
     targets.forEach(function (element, index) {
       element.classList.add("reveal");
-      element.style.transitionDelay = Math.min(index * 34, 200) + "ms";
+      element.style.transitionDelay = Math.min(index * 32, 190) + "ms";
       observer.observe(element);
     });
   }
@@ -1235,41 +1240,7 @@
   setupReveal();
 
   /* =======================================================
-     THEME
-  ======================================================= */
-
-  function preferredTheme() {
-    var saved = localStorage.getItem("portfolio-theme");
-
-    if (saved === "light" || saved === "dark") {
-      return saved;
-    }
-
-    return window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: light)").matches
-      ? "light"
-      : "dark";
-  }
-
-  function applyTheme(theme) {
-    document.body.classList.toggle("theme-light", theme === "light");
-    localStorage.setItem("portfolio-theme", theme);
-
-    var button = qs("[data-theme-toggle]");
-
-    if (button) {
-      button.textContent = theme === "light" ? "☾" : "☀";
-      button.setAttribute(
-        "aria-label",
-        theme === "light"
-          ? "Switch to dark theme"
-          : "Switch to light theme"
-      );
-    }
-  }
-
-  /* =======================================================
-     COMMAND PALETTE
+     COMMAND PALETTE — DARK ONLY
   ======================================================= */
 
   var commandItems = [
@@ -1356,6 +1327,7 @@
     selectedIndex = 0;
     commandInput.value = "";
     renderCommandResults("");
+
     setTimeout(function () {
       commandInput.focus();
     }, 0);
@@ -1365,14 +1337,6 @@
     palette.classList.remove("is-open");
     palette.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
-  }
-
-  function goToSelected() {
-    var selected = qs(".command-item.is-selected", commandResults);
-
-    if (selected) {
-      window.location.href = selected.getAttribute("data-href");
-    }
   }
 
   commandInput.addEventListener("input", function () {
@@ -1397,9 +1361,11 @@
   document.addEventListener("keydown", function (event) {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
       event.preventDefault();
+
       palette.classList.contains("is-open")
         ? closePalette()
         : openPalette();
+
       return;
     }
 
@@ -1411,53 +1377,39 @@
       closePalette();
     }
 
-    if (event.key === "ArrowDown") {
+    var items = qsa(".command-item", commandResults);
+
+    if (event.key === "ArrowDown" && items.length) {
       event.preventDefault();
-      var itemsDown = qsa(".command-item", commandResults);
-      if (itemsDown.length) {
-        selectedIndex = (selectedIndex + 1) % itemsDown.length;
-        renderCommandResults(commandInput.value);
-      }
+      selectedIndex = (selectedIndex + 1) % items.length;
+      renderCommandResults(commandInput.value);
     }
 
-    if (event.key === "ArrowUp") {
+    if (event.key === "ArrowUp" && items.length) {
       event.preventDefault();
-      var itemsUp = qsa(".command-item", commandResults);
-      if (itemsUp.length) {
-        selectedIndex =
-          (selectedIndex - 1 + itemsUp.length) % itemsUp.length;
-        renderCommandResults(commandInput.value);
-      }
+      selectedIndex =
+        (selectedIndex - 1 + items.length) % items.length;
+      renderCommandResults(commandInput.value);
     }
 
     if (event.key === "Enter") {
       event.preventDefault();
-      goToSelected();
+
+      var selected = qs(".command-item.is-selected", commandResults);
+
+      if (selected) {
+        window.location.href = selected.getAttribute("data-href");
+      }
     }
   });
 
-  /* =======================================================
-     FLOATING ACTIONS
-  ======================================================= */
+  var commandButton = document.createElement("button");
+  commandButton.type = "button";
+  commandButton.className = "floating-command";
+  commandButton.setAttribute("aria-label", "Open quick navigation");
+  commandButton.title = "Quick navigation (Ctrl+K)";
+  commandButton.textContent = "⌘";
 
-  var floating = document.createElement("div");
-  floating.className = "floating-actions";
-
-  floating.innerHTML = `
-    <button
-      class="floating-action"
-      type="button"
-      data-command-open
-      aria-label="Open quick navigation"
-      title="Quick navigation (Ctrl+K)"
-    >
-      ⌘
-    </button>
-  `;
-
-  document.body.appendChild(floating);
-
-  qs("[data-command-open]", floating).addEventListener("click", openPalette);
-
-  applyTheme("dark");
+  commandButton.addEventListener("click", openPalette);
+  document.body.appendChild(commandButton);
 })();
