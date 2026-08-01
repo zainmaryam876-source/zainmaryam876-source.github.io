@@ -1615,3 +1615,23 @@ button:focus-visible {
     transform: none;
   }
 }
+/* =========================================================
+   VISIBILITY FIX
+========================================================= */
+
+body {
+  opacity: 1 !important;
+}
+
+.reveal,
+.reveal.is-visible,
+.reveal.in-view,
+.project-card,
+.timeline-card,
+.content-card,
+.contact-row,
+.contact-item,
+.case-layout {
+  opacity: 1 !important;
+  transform: none !important;
+}
